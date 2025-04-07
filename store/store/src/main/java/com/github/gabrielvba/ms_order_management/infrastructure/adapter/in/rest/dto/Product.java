@@ -1,4 +1,4 @@
-package com.gabriel.vba.store.infrastructure.adapter.in.rest.dto;
+package com.github.gabrielvba.ms_order_management.infrastructure.adapter.in.rest.dto;
 
 import java.math.BigDecimal;
 
