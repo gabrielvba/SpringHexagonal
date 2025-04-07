@@ -1,0 +1,35 @@
+{
+  "orderId": 12345,
+  "customerId": 67890,
+  "items": [
+    {
+      "id": 1,
+      "externalProductId": 11111,
+      "name": "Product A",
+      "unitPrice": 100.50,
+      "quantity": 2,
+      "promotionCode": "DISCOUNT10"
+    },
+    {
+      "id": 2,
+      "externalProductId": 22222,
+      "name": "Product B",
+      "unitPrice": 50.00,
+      "quantity": 1,
+      "promotionCode": "DISCOUNT10"
+    }
+  ],
+  "payment": {
+    "external_transaction_id": "98765",
+    "status": "PENDING",
+    "paymentId": 98765,
+    "paymentMethod": "Credit Card",
+    "orderId": 12345,
+    "totalAmount": 251.00
+  },
+  "totalAmount": 251.00,
+  "status": "STARTED",
+  "deliveryAddress": "1234 Elm Street, Springfield, IL",
+  "promotionCode": "DISCOUNT10",
+  "shipmentId": 45678
+}

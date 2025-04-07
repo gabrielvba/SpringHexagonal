@@ -1,0 +1,8 @@
+{
+  "orderId": 12345,
+  "customerId": 67890,
+  "totalAmount": 251.00,
+  "deliveryAddress": "1234 Elm Street, Springfield, IL",
+  "promotionCode": "DISCOUNT10",
+  "shipmentId": 45678
+}
