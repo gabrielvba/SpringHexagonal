@@ -26,8 +26,8 @@ public class ProductConverter {
         product.setManufactureDate(dto.manufactureDate());
         product.setExpiryDate(dto.expiryDate());
         product.setSupplier(dto.supplier());
-        product.setImages(dto.images());
-        product.setReviews(dto.reviews());
+//        product.setImages(dto.images());
+//        product.setReviews(dto.reviews());
         return product;
     }
 
@@ -48,9 +48,9 @@ public class ProductConverter {
             product.getBrand(),
             product.getManufactureDate(),
             product.getExpiryDate(),
-            product.getSupplier(),
-            product.getImages(),
-            product.getReviews()
+//            product.getImages(),
+//            product.getReviews(),
+            product.getSupplier()
         );
     }
 

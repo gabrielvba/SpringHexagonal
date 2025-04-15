@@ -1,4 +1,4 @@
-package com.github.gabrielvba.ms_order_management.port.out;
+package common;
 
 import java.math.BigDecimal;
 import java.util.HashMap;

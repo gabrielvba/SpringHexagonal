@@ -40,11 +40,31 @@
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.30</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -52,22 +72,31 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- Testcontainers: núcleo + MySQL -->
 		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-api</artifactId>
-   			<version>5.11.0-M2</version>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>mysql</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- JUnit Jupiter para testes -->
+		<dependency>
 			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-engine</artifactId>
-		    <version>5.11.0-M2</version>
+			<artifactId>junit-jupiter</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-		    <groupId>com.fasterxml.jackson.datatype</groupId>
-		    <artifactId>jackson-datatype-jsr310</artifactId>
-		    <version>2.18.3</version> <!-- Verifique a versão mais recente -->
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-suite</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
@@ -75,8 +104,13 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-		    <groupId>com.fasterxml.jackson.core</groupId>
-		    <artifactId>jackson-databind</artifactId>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.33</version> <!-- Ou a versão mais recente -->
 		</dependency>
 	</dependencies>
 	<build>
@@ -84,37 +118,53 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.0.0-M5</version>
 				<configuration>
-					<includes>
-						<include>**/*Test.java</include>
-					</includes>
+					<!--					<includes>-->
+					<!--						<include>**/*Test.java</include>-->
+					<!--					</includes>-->
+					<excludes>
+<!--						<exclude>**/TestClassToExclude.java</exclude>-->
+<!--						<exclude>**/OrderControllerTest.java</exclude>-->
+<!--						<exclude>**/OrderManagementE2E.java</exclude>-->
+<!--						<exclude>**/OrderControllerWithMockitoTest.java</exclude>-->
+						<!--						<exclude>**/tests/**</exclude> -->
+					</excludes>
+					<!--
+					<outputDirectory>${project.build.directory}/jacoco-report</outputDirectory>-->
 				</configuration>
 			</plugin>
-			<!--			<plugin>-->
-			<!--				<groupId>org.apache.maven.plugins</groupId>-->
-			<!--				<artifactId>maven-compiler-plugin</artifactId>-->
-			<!--				<configuration>-->
-			<!--					<annotationProcessorPaths>-->
-			<!--						<path>-->
-			<!--							<groupId>org.projectlombok</groupId>-->
-			<!--							<artifactId>lombok</artifactId>-->
-			<!--						</path>-->
-			<!--					</annotationProcessorPaths>-->
-			<!--				</configuration>-->
-			<!--			</plugin>-->
-			<!--			<plugin>-->
-			<!--				<groupId>org.springframework.boot</groupId>-->
-			<!--				<artifactId>spring-boot-maven-plugin</artifactId>-->
-			<!--				<configuration>-->
-			<!--					<excludes>-->
-			<!--						<exclude>-->
-			<!--							<groupId>org.projectlombok</groupId>-->
-			<!--							<artifactId>lombok</artifactId>-->
-			<!--						</exclude>-->
-			<!--					</excludes>-->
-			<!--				</configuration>-->
-			<!--			</plugin>-->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId> <!-- CORRETO: sem o
+				sufixo -maven-plugin -->
+				<version>0.8.11</version>
+				<!--				<configuration>-->
+				<!--
+				<outputDirectory>${project.build.directory}/custom-reports</outputDirectory>
+				Define a pasta de saída -->
+				<!--					<excludes>-->
+				<!--					        <exclude>**/SomeClassToExclude.class</exclude>-->
+				<!--					</excludes>-->
+				<!--				</configuration>-->
+				<executions>
+					<!-- Adiciona o agente do JaCoCo para instrumentação do
+					código -->
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+
+					<!-- Gera os relatórios de cobertura após os testes -->
+					<execution>
+						<id>report</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 

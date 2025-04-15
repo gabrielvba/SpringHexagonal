@@ -13,22 +13,22 @@ import lombok.extern.log4j.Log4j2;
 @Component
 @Log4j2
 public class OrderShippingUseCase {
-	private final StockServicePort stockServicePort;
 	private final OrderRepositoryPort orderRepository;
 	private final ChangeStatus changeStatus;
 
-	public OrderShippingUseCase(OrderRepositoryPort orderRepository, StockServicePort stockServicePort, ChangeStatus changeStatus) {
+	public OrderShippingUseCase(OrderRepositoryPort orderRepository, ChangeStatus changeStatus) {
 		this.orderRepository = orderRepository;
-		this.stockServicePort = stockServicePort;
 		this.changeStatus = changeStatus;
 
 	}
 	
-	public void execute(Long id, Order orderModel) {
-		changeStatus.execute(orderModel,OrderStatus.SHIPPING);
-		orderRepository.updateOrder(id, orderModel);
-		///Pedido enviado
+	public Order execute(Long id, Order orderModel) {
+		changeStatus.execute(orderModel, getOrder(id));
+		return orderRepository.updateOrder(id, orderModel);
 	}
 		
-		
+	private Order getOrder(Long id) {
+		log.info("Get Order with ID: {}", id);
+		return orderRepository.getOrder(id);
+	}	
 }

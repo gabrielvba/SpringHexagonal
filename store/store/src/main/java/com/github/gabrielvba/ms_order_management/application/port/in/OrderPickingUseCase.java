@@ -25,11 +25,15 @@ public class OrderPickingUseCase {
 
 	}
 	
-	public void execute(Long id, Order orderModel) {
+	public Order execute(Long id, Order orderModel) {
+		changeStatus.execute(orderModel, getOrder(id));
+		var updatedOrder = orderRepository.updateOrder(id, orderModel);
 		stockServicePort.createStockOrder(orderModel);
-		changeStatus.execute(orderModel,OrderStatus.PICKING);
-		orderRepository.updateOrder(id, orderModel);
-		//ordem status Processing Payment / Pedido em separacao
+		return updatedOrder;
 	}
-		
+	
+	private Order getOrder(Long id) {
+		log.info("Get Order with ID: {}", id);
+		return orderRepository.getOrder(id);
+	}	
 }

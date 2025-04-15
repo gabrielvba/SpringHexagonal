@@ -1,9 +1,7 @@
 package com.github.gabrielvba.ms_order_management.application.port.in;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.github.gabrielvba.ms_order_management.application.port.out.OrderRepositoryPort;
@@ -11,8 +9,9 @@ import com.github.gabrielvba.ms_order_management.application.port.out.ProductSer
 import com.github.gabrielvba.ms_order_management.application.port.out.StockServicePort;
 import com.github.gabrielvba.ms_order_management.domain.dto.ProductDTO;
 import com.github.gabrielvba.ms_order_management.domain.dto.StockAvailability;
+import com.github.gabrielvba.ms_order_management.domain.exception.ProductItemException;
 import com.github.gabrielvba.ms_order_management.domain.model.Order;
-import com.github.gabrielvba.ms_order_management.domain.model.OrderStatus;
+import com.github.gabrielvba.ms_order_management.domain.model.ProductItem;
 import com.github.gabrielvba.ms_order_management.domain.rules.ChangeStatus;
 
 import lombok.extern.log4j.Log4j2;
@@ -21,61 +20,50 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class CreateOrderUserCase {
 
-	private final OrderRepositoryPort orderRepository;
+	private final OrderRepositoryPort orderRepositoryPort;
 	private final StockServicePort stockServicePort;
 	private final ProductServicePort productServicePort;
 	private final ChangeStatus changeStatus;
 
-	@Autowired
-	public CreateOrderUserCase( OrderRepositoryPort orderRepository, 
+	public CreateOrderUserCase( OrderRepositoryPort orderRepositoryPort, 
 								StockServicePort stockServicePort,
 								ProductServicePort productServicePort,
 								ChangeStatus changeStatus) {
-		this.orderRepository = orderRepository;
+		this.orderRepositoryPort = orderRepositoryPort;
 		this.stockServicePort = stockServicePort;
 		this.productServicePort = productServicePort;
 		this.changeStatus = changeStatus;
 	}
 
-	public Order execute(Order orderModel) throws Exception {
-	    log.info("Create Order");
-
-	    this.validOrder(orderModel);
+	public Order execute(Order orderModel) {
+	    this.validProducts(orderModel);
 	    this.validStock(orderModel);
-	    changeStatus.execute(orderModel, OrderStatus.CREATED);
-	    
-		try {
-			return this.persistOrder(orderModel);
-		} catch (Exception ex) {
-			throw new Exception(ex.getMessage());
-		} 
+	    changeStatus.execute(orderModel, null);
+		return this.persistOrder(orderModel);
 	}
 
-	private Order persistOrder(Order orderModel) throws Exception {
-		log.info("Creating new Order with ID: {}", orderModel.getOrderId());
-		orderRepository.saveOrder(orderModel);
+	private Order persistOrder(Order orderModel) {
+		orderRepositoryPort.saveOrder(orderModel);
 		log.info("SUCCESS! Order has been CREATED with ID: {}", orderModel.getOrderId());
 		return orderModel;
 		
 	}
 
-	private void validOrder(Order orderModel) throws Exception {
+	private void validProducts(Order orderModel) {
 		List<ProductDTO> products = productServicePort.getProducts(
-				orderModel.getItems().stream()
-				.map(i -> i.getExternalProductId())
-				.collect(Collectors.toList()));
+				orderModel.getItems().stream().map(ProductItem::getExternalProductId).toList());
 		if (orderModel.getItems().size() == 0 || products  == null || products.isEmpty() ) {
-			throw new Exception("Nenhum produto encontrado");
+			throw new ProductItemException("Nenhum produto encontrado");
 		}
 		if (orderModel.getItems().size() != products.size()) {
-			throw new Exception("Produto indisponivel");
+			throw new ProductItemException("Produto indisponivel");
 		}
 	}
 	
-	private void validStock(Order orderModel) throws Exception {
+	private void validStock(Order orderModel) {
 		StockAvailability aviability = stockServicePort.getOrderAvailibility(orderModel);
 		if (!aviability.available()) {
-			throw new Exception("Produto indisponivel no stock");
+			throw new ProductItemException("Produto indisponivel no stock");
 		}		
 	}
 

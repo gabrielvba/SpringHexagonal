@@ -28,8 +28,7 @@
     "totalAmount": 251.00
   },
   "totalAmount": 251.00,
-  "status": "STARTED",
+  "status": "CREATED",
   "deliveryAddress": "1234 Elm Street, Springfield, IL",
-  "promotionCode": "DISCOUNT10",
-  "shipmentId": 45678
+  "promotionCode": "DISCOUNT10"
 }

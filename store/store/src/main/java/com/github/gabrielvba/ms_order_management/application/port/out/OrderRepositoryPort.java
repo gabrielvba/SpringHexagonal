@@ -6,7 +6,7 @@ import com.github.gabrielvba.ms_order_management.domain.model.Order;
 
 public interface OrderRepositoryPort {
 
-	Order getOrders(long id);
+	Order getOrder(long id);
 	List<Order> getAllOrders();
 	Order saveOrder(Order orderModel);
 	Order updateOrder(Long id, Order orderModel);	

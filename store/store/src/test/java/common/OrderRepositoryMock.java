@@ -1,4 +1,4 @@
-package com.github.gabrielvba.ms_order_management.port.out;
+package common;
 
 import java.util.List;
 
@@ -8,7 +8,7 @@ import com.github.gabrielvba.ms_order_management.domain.model.Order;
 public class OrderRepositoryMock implements OrderRepositoryPort{
 
 	@Override
-	public Order getOrders(long id) {
+	public Order getOrder(long id) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -21,6 +21,8 @@ public class OrderRepositoryMock implements OrderRepositoryPort{
 
 	@Override
 	public Order saveOrder(Order orderModel) {
+		orderModel.getItems().forEach(e -> e.setId(e.getExternalProductId()));
+		orderModel.setOrderId(1l);
 		return orderModel;
 	}
 

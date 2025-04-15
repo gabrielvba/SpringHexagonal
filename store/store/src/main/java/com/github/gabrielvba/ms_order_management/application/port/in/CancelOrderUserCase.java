@@ -26,9 +26,15 @@ public class CancelOrderUserCase {
 
 	}
 	
-	public void execute(Long id, Order orderModel) {
-		changeStatus.execute(orderModel,OrderStatus.CANCELED);
-		orderRepository.updateOrder(id, orderModel);
+	public Order execute(Long id, Order orderModel) {
+		changeStatus.execute(orderModel, getOrder(id));
+		var result = orderRepository.updateOrder(id, orderModel);
+		stockServicePort.cancelStockOrder(orderModel);
+		return result;
 	}
-
+	
+	private Order getOrder(Long id) {
+		log.info("Get Order with ID: {}", id);
+		return orderRepository.getOrder(id);
+	}
 }

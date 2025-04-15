@@ -12,11 +12,6 @@ import com.github.gabrielvba.ms_order_management.domain.model.Order;
 @Component
 public class StockGateway implements StockServicePort{
 
-	@Override
-	public Order validateInventory(Order orderModel) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public StockAvailability getOrderAvailibility(Order itens) {
@@ -28,6 +23,11 @@ public class StockGateway implements StockServicePort{
 	public void createStockOrder(Order orderModel) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void cancelStockOrder(Order orderModel) {
+		// TODO Auto-generated method stub
 	}
 
 }

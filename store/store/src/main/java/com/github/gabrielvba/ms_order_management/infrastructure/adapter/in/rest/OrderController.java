@@ -1,15 +1,15 @@
 package com.github.gabrielvba.ms_order_management.infrastructure.adapter.in.rest;
 
-import java.net.URI;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.gabrielvba.ms_order_management.application.port.in.CancelOrderUserCase;
@@ -36,105 +36,70 @@ public class OrderController {
 	private final ProductServicePort productServicePort;
 	private final StockServicePort stockServicePort;
 	private final ChangeStatus changeStatus;
+	private final TransformOrderDtoToModel transformOrderDtoToModel;
 
-	@Autowired
-    public OrderController(OrderRepositoryPort productRepository, ProductServicePort productServicePort,
+	public OrderController(OrderRepositoryPort productRepository, ProductServicePort productServicePort,
 			StockServicePort stockServicePort) {
 		super();
 		this.productRepository = productRepository;
 		this.productServicePort = productServicePort;
 		this.stockServicePort = stockServicePort;
 		this.changeStatus = new ChangeStatus();
+		this.transformOrderDtoToModel = new TransformOrderDtoToModel();
+
 	}
 
 	@PostMapping(path = "/create")
 	public ResponseEntity<Object> createOrder(@RequestBody Order order) {
-	    log.info("Order Received: {}", order);
+		log.info("Order Received: {}", order);
 
-	    try {
-	        com.github.gabrielvba.ms_order_management.domain.model.Order orderModel =
-	                TransformOrderDtoToModel.toModel(order);
+		var createdOrder = new CreateOrderUserCase(productRepository, stockServicePort, productServicePort,
+				changeStatus).execute(transformOrderDtoToModel.toModel(order));
 
-	        com.github.gabrielvba.ms_order_management.domain.model.Order createdOrder =
-	                new CreateOrderUserCase(productRepository, stockServicePort, productServicePort, changeStatus)
-	                        .execute(orderModel);
-
-	        // Aqui você pode construir a URI do recurso criado, caso tenha um ID
-	        URI location = URI.create("/orders/" + createdOrder.getOrderId());
-
-	        return ResponseEntity.created(location).body(createdOrder);
-
-	    } catch (Exception ex) {
-	        log.error("Error creating order: {}", ex.getMessage(), ex);
-	        return ResponseEntity.badRequest().body("Error creating order: " + ex.getMessage());
-	    }
+		return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
 	}
-    
-    @PostMapping(path = "/payment/{id}")
-    public ResponseEntity<Object> updateOrderPaymentProcess(@PathVariable Long id, @RequestBody Order order){
-        log.info("Order Received: {}", order);
 
-    	com.github.gabrielvba.ms_order_management.domain.model.Order orderModel = null;
-        try {
-        	orderModel = TransformOrderDtoToModel.toModel(order);
-        	new PaymentProcessUseCase(productRepository, changeStatus).execute(id, orderModel);
-        } catch (Exception ex) {
-        	return ResponseEntity.badRequest().body(ex.getMessage());
-        }
-        
-        return ResponseEntity.ok().build();
-    }
-    
-    @PostMapping(path = "/picking/{id}")
-    public ResponseEntity<Object> updateOrderPicking(@PathVariable Long id, @RequestBody Order order) {
-        log.info("Order Received: {}", order);
-        
+	@PostMapping(path = "/payment/{id}")
+	public ResponseEntity<Object> updateOrderPaymentProcess(@PathVariable Long id, @RequestBody Order order) {
+		log.info("Order Received: {}", order);
 
-    	com.github.gabrielvba.ms_order_management.domain.model.Order orderModel = null;
-        try {
-        	orderModel = TransformOrderDtoToModel.toModel(order);
-        	new OrderPickingUseCase(productRepository,stockServicePort,changeStatus).execute(id, orderModel);
-        } catch (Exception ex) {
-        	return ResponseEntity.badRequest().body(ex.getMessage());
-        }
-        
-        return ResponseEntity.ok().build();
-    }
-    
-    @PostMapping(path = "/shipped/{id}")
-    public ResponseEntity<Object> updateOrderShipping(@PathVariable Long id, @RequestBody Order order) {
-        log.info("Order Received: {}", order);
+		var updatePayment = new PaymentProcessUseCase(productRepository, changeStatus).execute(id, transformOrderDtoToModel.toModel(order));
 
-    	com.github.gabrielvba.ms_order_management.domain.model.Order orderModel = null;
-        try {
-        	orderModel = TransformOrderDtoToModel.toModel(order);
-        	new OrderShippingUseCase(productRepository,stockServicePort,changeStatus).execute(id, orderModel);
-        } catch (Exception ex) {
-        	return ResponseEntity.badRequest().body(ex.getMessage());
-        }
-        
-        return ResponseEntity.ok().build();
-    }
-    
-    @PostMapping(path = "/cancel/{id}")
-    public ResponseEntity<Object> cancelOrder(@PathVariable Long id, @RequestBody Order order) {
-        log.info("Order Received: {}", order);
+		return ResponseEntity.ok().body(updatePayment);
+	}
 
-    	com.github.gabrielvba.ms_order_management.domain.model.Order orderModel = null;
-    	new CancelOrderUserCase(productRepository, stockServicePort, changeStatus).execute(id, orderModel);
-        try {
-        	orderModel = TransformOrderDtoToModel.toModel(order);
-        } catch (Exception ex) {
-        	return ResponseEntity.badRequest().body(ex.getMessage());
-        }
-        
-        return ResponseEntity.ok().build();
-    }
-    
-    @GetMapping
-    public ResponseEntity<List<com.github.gabrielvba.ms_order_management.domain.model.Order>> listarPedidos() {
-        List<com.github.gabrielvba.ms_order_management.domain.model.Order> pedidos = new ConsultOrderUseCase(productRepository,changeStatus).execute();
-        return ResponseEntity.ok(pedidos);
-    }
-    
+	@PostMapping(path = "/picking/{id}")
+	public ResponseEntity<Object> updateOrderPicking(@PathVariable Long id, @RequestBody Order order) {
+		log.info("Order Received: {}", order);
+
+		var updatePayment =  new OrderPickingUseCase(productRepository, stockServicePort, changeStatus).execute(id,
+				transformOrderDtoToModel.toModel(order));
+
+		return ResponseEntity.ok().body(updatePayment);
+	}
+
+	@PostMapping(path = "/shipped/{id}")
+	public ResponseEntity<Object> updateOrderShipping(@PathVariable Long id, @RequestBody Order order) {
+		log.info("Order Received: {}", order);
+
+		var updatedOrder =  new OrderShippingUseCase(productRepository, changeStatus).execute(id, transformOrderDtoToModel.toModel(order));
+
+		return ResponseEntity.ok().body(updatedOrder);
+	}
+
+	@PostMapping(path = "/cancel/{id}")
+	public ResponseEntity<Object> cancelOrder(@PathVariable Long id, @RequestBody Order order) {
+		log.info("Order Received: {}", order);
+
+		var updatedOrder = new CancelOrderUserCase(productRepository, stockServicePort, changeStatus).execute(id,
+				transformOrderDtoToModel.toModel(order));
+
+		return ResponseEntity.ok().body(updatedOrder);
+	}
+
+	@GetMapping
+	public ResponseEntity<List<com.github.gabrielvba.ms_order_management.domain.model.Order>> listarPedidos() {
+		var pedidos = new ConsultOrderUseCase(productRepository).execute();
+		return ResponseEntity.ok(pedidos);
+	}
 }

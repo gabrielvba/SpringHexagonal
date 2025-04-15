@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.gabrielvba.ms_product_service.dto.ProductDTO;
+import com.github.gabrielvba.ms_product_service.model.Product;
 import com.github.gabrielvba.ms_product_service.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
@@ -31,15 +33,14 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO productDTO) {
         log.info("Creating Product: {}", productDTO);
-        ProductDTO newProduct = productService.createProduct(productDTO);
+        var newProduct = productService.createProduct(productDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(newProduct);
     }
-
 
     @PutMapping("/{id}")
     public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long id, @RequestBody ProductDTO productDTO) throws Exception {
         log.info("Updating Product with id {}: {}", id, productDTO);
-        ProductDTO updatedProduct = productService.updateProduct(id, productDTO);
+        var updatedProduct = productService.updateProduct(id, productDTO);
         return ResponseEntity.ok(updatedProduct);
     }
 
@@ -52,15 +53,29 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<List<ProductDTO>> listProducts() {
-    	log.info("Listing all products");
-    	List<ProductDTO> products = productService.listProducts();
-    	return ResponseEntity.ok(products);
+        log.info("Listing all products");
+        var products = productService.listProducts();
+        return ResponseEntity.ok(products);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
         log.info("Fetching Product with id {}", id);
-        Optional<ProductDTO> product = productService.getProductById(id);
-        return ResponseEntity.ok(product.get());
+        var product = productService.getProductById(id);
+        if (product.isPresent()) {
+            return ResponseEntity.ok(product.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Product>> getProductsByIds(@RequestParam List<Long> ids) {
+        log.info("Fetching Products with ids {}", ids);
+        var products = productService.getProductsByIds(ids);
+        if (products.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(products);
     }
 }

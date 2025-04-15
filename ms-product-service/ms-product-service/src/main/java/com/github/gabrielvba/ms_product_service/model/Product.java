@@ -37,7 +37,7 @@ public class Product {
     private String manufactureDate;
     private String expiryDate;
     private String supplier;
-    private List<String> images;
-    private List<String> reviews;
+//    private List<String> images;
+//    private List<String> reviews;
 
 }

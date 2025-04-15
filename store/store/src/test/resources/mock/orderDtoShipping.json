@@ -31,5 +31,6 @@
   "status": "CREATED",
   "deliveryAddress": "1234 Elm Street, Springfield, IL",
   "promotionCode": "DISCOUNT10",
-  "shipmentId": 45678
+  "shipmentId": 1,
+  "estimatedDeliveryDate": "2025-04-17T14:30:00"  
 }

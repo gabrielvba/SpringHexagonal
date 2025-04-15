@@ -18,7 +18,6 @@ public class ProductService {
 
 	private final ProductRepository productRepository;
 
-    // Injeção de dependência via construtor
     public ProductService(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
@@ -54,6 +53,10 @@ public class ProductService {
         }
         productRepository.deleteById(id);
         return true;
+    }
+
+    public List<Product> getProductsByIds(List<Long> ids) {
+        return productRepository.findByProductIdIn(ids);
     }
 
 }

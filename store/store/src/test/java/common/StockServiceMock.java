@@ -1,4 +1,4 @@
-package com.github.gabrielvba.ms_order_management.port.out;
+package common;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,16 +22,11 @@ public class StockServiceMock implements StockServicePort {
 		    )
 		);	
 	
-	@Override
-	public Order validateInventory(Order orderModel) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public StockAvailability getOrderAvailibility(Order order) {
 		List<ProductAvailability> matchedProducts = order.getItems().stream()
-				.map(item -> productsStock.get(item.getId()))
+				.map(item -> productsStock.get(item.getExternalProductId()))
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
 		return matchedProducts.size() == order.getItems().size() 
@@ -45,4 +40,9 @@ public class StockServiceMock implements StockServicePort {
 		
 	}
 
+	@Override
+	public void cancelStockOrder(Order orderModel) {
+		// TODO Auto-generated method stub
+		
+	}
 }
